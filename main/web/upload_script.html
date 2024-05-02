@@ -1,0 +1,265 @@
+<!-- HTML -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <!-- Browser tab title -->
+        <title>File Server</title>
+    </head>
+
+    <body>
+        <!-- Page title -->
+        <h1>File Server</h1>
+        <section class="step">
+            <h2 class="common_text_style">[1] Select image file</h2>
+            <div class="file">
+                <label class="select_image_label">
+                    <span class="select_image_label_text">Select image</span>
+                    <input id="newfile" type="file" name="file" onchange="selectImageCallback()">
+                </label>
+            </div>
+        </section>
+
+        <section class="step">
+            <p class="image_none common_text_style">Preview: Not selected</p>
+            <p class="image_preview common_text_style" style="display: none;">Preview: Resized image</p>
+            <img id="preview" src="" style="max-width:500px;">
+        </section>
+
+        <section class="step">
+            <h2 class="common_text_style">[2] Set record name</h2>
+            <input id="filepath" type="text" class="input_record_name_text">
+        </section>
+
+        <section class="step">
+            <h2 class="common_text_style">[3] Upload image file</h2>
+            <button id="upload" type="button" class="upload_btn" onclick="upload()">
+                <span class="upload_btn_text">Upload</span>
+            </button>            
+        </section>
+    </body>
+</html>
+
+
+<!-- CSS -->
+<style>
+    h1 {
+        font-size: 50px;
+        font-family: 'Times New Roman', serif;
+    }
+
+    h2 {
+        font-size: 40px;
+        font-family: 'Times New Roman', serif;
+    }
+
+    input[type=file] {
+        display: none;
+    }
+
+    .step {
+        margin-bottom: 30px;
+    }
+
+    .common_text_style {
+        width: 50%;
+        font-size: 45px;
+        line-height: 1.5;
+        margin-right: auto;
+        word-break: break-all;
+        font-family: 'Times New Roman', serif;
+    }
+
+    .select_image_label {
+        display: block;
+        line-height: 1.5;
+        text-align: center;
+        width: min(100%, 350px);
+        padding: 1.5em 0.5em;
+        margin-right: auto;
+        color: #070707;
+        background-color: #8d877e59;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+    }
+
+    .select_image_label_text {
+        font-size: 45px;
+        font-family: 'Times New Roman', serif;
+    }
+  
+    .input_record_name_text {
+        width: 50%;
+        font-size: 40px;
+        font-family: 'Times New Roman', serif;
+        padding: 10px;
+        cursor: text;
+    }
+
+    .upload_btn {
+        width: 50%;
+        height: 80px;
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    .upload_btn_text {
+        font-size: 45px;
+        font-family: 'Times New Roman', serif;
+        line-height: normal;
+    }
+</style>
+
+
+<!-- JavaScript -->
+<script>
+    function selectImageCallback() {
+        setpath()
+        previewResizedImage()
+    }
+
+    function setpath() {
+        var default_path = document.getElementById("newfile").files[0].name;
+        document.getElementById("filepath").value = default_path;   
+    }
+
+    function previewResizedImage() {
+        var selected_file = document.getElementById("newfile").files;
+        if( selected_file.length > 0 ) {
+            var file = selected_file[ 0 ];
+            resizeImageLetterbox( file, function( blob ) {
+                    // Blob to URL
+                    var url = URL.createObjectURL( blob );
+                    document.getElementById("preview").src = url;
+                    // Hide the image_none text
+                    document.querySelector(".image_none").style.display = 'none';
+                    // Show the image_preview text
+                    document.querySelector(".image_preview").style.display = 'block';
+            } );
+        }
+    }
+
+    function resizeImageLetterbox( file, callback ) {
+        /* Resize image size: VGA */
+        var resize_width = 640;
+        var resize_height = 480;
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var img = new Image();
+            img.onload = function() {
+                var canvas = document.createElement("canvas");
+                var ctx = canvas.getContext("2d");
+                var width = img.width;
+                var height = img.height;
+
+                // Resize with keep aspect ratio
+                var aspect = Math.min(resize_width / width, resize_height / height);
+                width = width * aspect;
+                height = height * aspect;
+
+                // Set canvas size as max size
+                canvas.width = resize_width;
+                canvas.height = resize_height;
+
+                // Padding
+                ctx.fillStyle = "black";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Set image to center position
+                var x = (resize_width - width) / 2;
+                var y = (resize_height - height) / 2;
+                ctx.drawImage(img, x, y, width, height);
+
+                canvas.toBlob(callback, "image/jpeg", 0.7);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function checkFileExtension( selected_file ) {
+        var fileName = selected_file.name;
+        var fileExtension = fileName.split('.').pop().toLowerCase();
+
+        if( fileExtension !== 'jpg' && fileExtension !== 'jpeg' ) {
+            return false;
+        }
+        return true;
+    }
+
+    function setupXhttpRequest( xhttp, upload_path ) {
+        xhttp.onreadystatechange = function() {
+            if( xhttp.readyState == 4 ) {
+                if( xhttp.status == 200 ) {
+                    document.body.innerHTML = xhttp.responseText;
+
+                } else if( xhttp.status == 0 ) {
+                    alert("Server closed the connection abruptly!");
+                    location.reload()
+
+                } else {
+                    alert(xhttp.status + " Error!\n" + xhttp.responseText);
+                    location.reload()
+                }
+            }
+        };
+        xhttp.open("POST", upload_path, true);
+    }
+
+    function upload() {
+        /* Maximum image file size before resizing */
+        var max_file_size = 10 * 1024 * 1024;
+        var max_file_size_string = "10MB";
+        /* Maximum record name length (bytes) */
+        var max_record_name_length_bytes = 64;
+        /* Regular expression for unicode range to search for full-width characters */
+        var japaneseRegex = /[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\uFF00-\uFFEF\u4E00-\u9FAF\u3400-\u4DBF]/;
+
+        var record_name = document.getElementById("filepath").value;
+        var upload_path = "/upload/" + record_name;
+        var selected_file = document.getElementById("newfile").files;
+
+        if( selected_file.length == 0 ) {
+            alert("No file selected!");
+
+        } else if( record_name.length == 0 ) {
+            alert("Record name is not set!");
+
+        } else if( record_name.indexOf(' ') >= 0 ) {
+            alert("Record name must not contain spaces!");
+
+        } else if( record_name[record_name.length-1] == '/' ) {
+            alert("Record name not specified after path!");
+
+        } else if( japaneseRegex.test(record_name) ) {
+            alert("Record name must not contain Japanese characters!");
+
+        } else if( record_name.length >= max_record_name_length_bytes ) {
+            alert(`Record name must be less than ${max_record_name_length_bytes} characters!`);
+            
+        } else if( selected_file[0].size > max_file_size ) {
+            alert(`File size must be less than ${max_file_size_string} !`);
+
+        } else if( !checkFileExtension( selected_file[0] ) ) {
+            alert("File extension must be a .jpg or .jpeg !");
+
+        } else {
+            document.getElementById("newfile").disabled = true;
+            document.getElementById("filepath").disabled = true;
+            document.getElementById("upload").disabled = true;
+
+            var file = selected_file[0];
+            var xhttp = new XMLHttpRequest();
+            setupXhttpRequest(xhttp, upload_path);
+
+            if( file.type === "image/jpeg" ) {
+                resizeImageLetterbox(file, function(resizedBlob) {
+                    xhttp.send(resizedBlob);
+                });
+            } else {
+                xhttp.send(file);
+            }
+        }
+    }
+</script>

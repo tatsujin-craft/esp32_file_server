@@ -1,0 +1,79 @@
+menu "Custom Common Configuration"
+    config FW_VERSION
+        string "FW Version"
+        default "0.0.0"
+        help
+            FW version.
+
+    config DEBUG_INFORMATION_ENABLED
+        bool "Debug information enabled"
+        default n
+endmenu
+
+
+menu "Custom Server Configuration"
+    # HTTP restful_server example
+    config MDNS_HOSTNAME
+        string "mDNS Hostname"
+        default "server"
+        help
+            This option specifies the mDNS hostname.
+    
+    # HTTP file_serving example
+    config EXAMPLE_HTTPD_CONN_CLOSE_HEADER
+        bool "Send connection close header from request handlers"
+        default y
+        help
+            If this config item is set, Connection: close header will be set in handlers.
+            This closes HTTP connection and frees the server socket instantly.
+endmenu
+
+
+menu "Custom WiFi AP Configuration"
+    config WIFI_AP_MODE_ENABLED
+        bool "AP mode enabled"
+		default y
+
+    config WIFI_AP_STATIC_IP
+        string "AP Mode Static IP Address"
+        default "192.168.0.1"
+        help
+            WiFi SoftAP IPaddress.
+
+    config WIFI_AP_NET_MASK
+        string "AP Mode Net Mask"
+        default "255.255.255.0"
+        help
+            WiFi SoftAP NetMask.
+
+    config WIFI_AP_MAIN_SSID
+        string "WiFi Main SSID"
+        default "ESP32_AP"
+
+    config WIFI_AP_SUB_SSID_ENABLED
+        bool "Use Sub SSID instead of Main SSID"
+        default n
+    
+    config WIFI_AP_SUB_SSID
+        string "WiFi Sub SSID"
+        default "sub_01_AP"
+        
+    config WIFI_AP_PASSWORD
+        string "WiFi Password"
+        default "31415926"
+        help
+            WiFi password (WPA or WPA2) for the example to use.
+
+    config WIFI_AP_CHANNEL
+        int "WiFi Channel"
+        range 1 13
+        default 1
+        help
+            WiFi channel (network channel) for the example to use.
+
+    config WIFI_AP_MAX_STA_CONN
+        int "Maximal STA connections"
+        default 4
+        help
+            Max number of the STA connects to AP.
+endmenu

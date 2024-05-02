@@ -11,10 +11,10 @@
         <!-- Page title -->
         <h1>File Server</h1>
         <section class="step">
-            <h2 class="common_text_style">[1] Select image file</h2>
+            <h2 class="common_text_style">[1] Select upload file</h2>
             <div class="file">
                 <label class="select_image_label">
-                    <span class="select_image_label_text">Select image</span>
+                    <span class="select_image_label_text">Select file</span>
                     <input id="newfile" type="file" name="file" onchange="selectImageCallback()">
                 </label>
             </div>
@@ -178,14 +178,11 @@
         reader.readAsDataURL(file);
     }
 
-    function checkFileExtension( selected_file ) {
-        var fileName = selected_file.name;
+    function checkFileExtension( file ) {
+        var validExtensions = ['jpg', 'jpeg', 'png', 'txt'];
+        var fileName = file.name;
         var fileExtension = fileName.split('.').pop().toLowerCase();
-
-        if( fileExtension !== 'jpg' && fileExtension !== 'jpeg' ) {
-            return false;
-        }
-        return true;
+        return validExtensions.includes(fileExtension);
     }
 
     function setupXhttpRequest( xhttp, upload_path ) {
@@ -223,6 +220,9 @@
         if( selected_file.length == 0 ) {
             alert("No file selected!");
 
+        } else if( !checkFileExtension( selected_file[0] ) ) {
+            alert("File extension must be .jpg, .jpeg, .png, or .txt !");
+
         } else if( record_name.length == 0 ) {
             alert("Record name is not set!");
 
@@ -241,10 +241,7 @@
         } else if( selected_file[0].size > max_file_size ) {
             alert(`File size must be less than ${max_file_size_string} !`);
 
-        } else if( !checkFileExtension( selected_file[0] ) ) {
-            alert("File extension must be a .jpg or .jpeg !");
-
-        } else {
+        }  else {
             document.getElementById("newfile").disabled = true;
             document.getElementById("filepath").disabled = true;
             document.getElementById("upload").disabled = true;
@@ -254,9 +251,9 @@
             setupXhttpRequest(xhttp, upload_path);
 
             if( file.type === "image/jpeg" ) {
-                resizeImageLetterbox(file, function(resizedBlob) {
+                resizeImageLetterbox( file, function(resizedBlob) {
                     xhttp.send(resizedBlob);
-                });
+                } );
             } else {
                 xhttp.send(file);
             }

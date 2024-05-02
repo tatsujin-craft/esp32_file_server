@@ -4,6 +4,7 @@
   "idf.flashType": "UART",
   "idf.adapterTargetName": "esp32",
   "idf.openOcdConfigs": [
-    "board/esp32-wrover-kit-3.3v.cfg"
+    "interface/ftdi/esp32_devkitj_v1.cfg",
+    "target/esp32.cfg"
   ]
 }

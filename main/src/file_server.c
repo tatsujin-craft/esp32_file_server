@@ -25,12 +25,11 @@
 // Constant definition
 //==================================================================================================
 /* Maximum image file size after resizing */
-#define MAX_FILE_SIZE               ( 300 * 1024 )
-#define MAX_FILE_SIZE_STR           "300KB"
+#define MAX_FILE_SIZE               ( 512 * 1024 )
+#define MAX_FILE_SIZE_STR           "512KB"
 /* Scratch buffer size */
 #define SCRATCH_BUFSIZE             ( 8192 )
 #define HTML_STATUS_SECTION_SIZE    ( 512 )
-#define MAX_LATEST_FILE_NAME_SIZE   ( 128 )
 #define DEBUG_DUMP_JPEG_ENABLED     ( false )
 
 /* Console log settings */
@@ -67,6 +66,12 @@ struct file_server_data {
 };
 
 static const char *TAG = "FILE_SERVER";
+
+typedef enum {
+    FILENAME_SUCCESS = 0,
+    FILENAME_ERROR_NO_SLASH,
+    FILENAME_ERROR_TOO_LONG
+} getFileNameResult_t;
 
 
 //==================================================================================================

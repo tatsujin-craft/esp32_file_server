@@ -25,8 +25,8 @@
 // Constant definition
 //==================================================================================================
 /* Maximum image file size after resizing */
-#define MAX_FILE_SIZE               ( 512 * 1024 )
-#define MAX_FILE_SIZE_STR           "512KB"
+#define MAX_FILE_SIZE               ( 10 * 1024 * 1024 )
+#define MAX_FILE_SIZE_STR           "10MB"
 /* Scratch buffer size */
 #define SCRATCH_BUFSIZE             ( 8192 )
 #define HTML_STATUS_SECTION_SIZE    ( 512 )

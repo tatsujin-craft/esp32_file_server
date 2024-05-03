@@ -13,9 +13,9 @@
         <section class="step">
             <h2 class="common_text_style">[1] Select upload file</h2>
             <div class="file">
-                <label class="select_image_label">
-                    <span class="select_image_label_text">Select file</span>
-                    <input id="newfile" type="file" name="file" onchange="selectImageCallback()">
+                <label class="select_file_label">
+                    <span class="select_file_label_text">Select file</span>
+                    <input id="newfile" type="file" name="file" onchange="selectFileCallback()">
                 </label>
             </div>
         </section>
@@ -27,12 +27,12 @@
         </section>
 
         <section class="step">
-            <h2 class="common_text_style">[2] Set record name</h2>
+            <h2 class="common_text_style">[2] Set file name</h2>
             <input id="filepath" type="text" class="input_record_name_text">
         </section>
 
         <section class="step">
-            <h2 class="common_text_style">[3] Upload image file</h2>
+            <h2 class="common_text_style">[3] Upload file</h2>
             <button id="upload" type="button" class="upload_btn" onclick="upload()">
                 <span class="upload_btn_text">Upload</span>
             </button>            
@@ -70,7 +70,7 @@
         font-family: 'Times New Roman', serif;
     }
 
-    .select_image_label {
+    .select_file_label {
         display: block;
         line-height: 1.5;
         text-align: center;
@@ -83,7 +83,7 @@
         transition: opacity 0.3s ease;
     }
 
-    .select_image_label_text {
+    .select_file_label_text {
         font-size: 45px;
         font-family: 'Times New Roman', serif;
     }
@@ -113,9 +113,10 @@
 
 <!-- JavaScript -->
 <script>
-    function selectImageCallback() {
+    function selectFileCallback() {
         setpath()
-        previewResizedImage()
+        // previewResizedImage()
+        previewImage()
     }
 
     function setpath() {
@@ -136,6 +137,24 @@
                     // Show the image_preview text
                     document.querySelector(".image_preview").style.display = 'block';
             } );
+        }
+    }
+
+    function previewImage() {
+        var selected_file = document.getElementById("newfile").files;
+        if (selected_file.length > 0) {
+            var file = selected_file[0];
+            if (file.type === "image/jpeg" || file.type === "image/png") {
+                var url = URL.createObjectURL(file);
+                document.getElementById("preview").src = url;
+                document.getElementById("preview").style.display = 'block';
+                document.querySelector(".image_none").style.display = 'none';
+                document.querySelector(".image_preview").style.display = 'block';
+            } else {
+                document.getElementById("preview").style.display = 'none';
+                document.querySelector(".image_preview").style.display = 'none';
+                document.querySelector(".image_none").style.display = 'block';
+            }
         }
     }
 
